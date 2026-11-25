@@ -10,15 +10,13 @@ import { motion, AnimatePresence } from "motion/react";
 import { AlertCircle, CheckCircle2, Info, Loader2 } from "lucide-react";
 
 export default function App() {
-  const [token, setToken] = useState(() => {
-    return localStorage.getItem("smart_crm_token") || sessionStorage.getItem("smart_crm_token") || null;
-  });
+  const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
   const [clients, setClients] = useState([]);
 
   // Page Routing & Layout States
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(false);
   const [isClientsLoading, setIsClientsLoading] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -44,36 +42,15 @@ export default function App() {
     }
   };
 
-  // 1. Authenticate cached token and boot state setup with automatic resilience backup sync
+  // Authenticate active in-memory token if present
   useEffect(() => {
-    const initCRM = async () => {
-      // First, restore backend state using client backup sync to survive ephemeral serverless power-downs/restarts
-      try {
-        const backupUsers = JSON.parse(localStorage.getItem("smart_crm_backup_users") || "[]");
-        const backupClients = JSON.parse(localStorage.getItem("smart_crm_backup_clients") || "[]");
-        const currentUserBackup = JSON.parse(localStorage.getItem("smart_crm_current_user") || "null");
+    if (!token) {
+      setIsInitializing(false);
+      return;
+    }
 
-        if (backupUsers.length > 0 || backupClients.length > 0) {
-          await fetch("/api/auth/sync", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              users: backupUsers,
-              clients: backupClients,
-              currentToken: token,
-              currentUserId: currentUserBackup ? currentUserBackup.id : null,
-            }),
-          });
-        }
-      } catch (syncErr) {
-        console.warn("Operator pre-sync data restoration bypassed/prevented.", syncErr);
-      }
-
-      if (!token) {
-        setIsInitializing(false);
-        return;
-      }
-
+    const verifySession = async () => {
+      setIsInitializing(true);
       try {
         const response = await fetch("/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
@@ -82,32 +59,21 @@ export default function App() {
         if (response.ok) {
           const userData = await safeParseJson(response);
           setUser(userData);
-          // Load CRM Client Ledger
           await fetchClients(token);
         } else {
-          // Token is dead, discard silently
-          localStorage.removeItem("smart_crm_token");
-          sessionStorage.removeItem("smart_crm_token");
-          localStorage.removeItem("smart_crm_current_user");
           setToken(null);
+          setUser(null);
         }
       } catch (err) {
         console.error("Connection failed during CRM initialization", err);
-        showToast("Operator connection error. Running offline mode...", "info");
+        showToast("Operator connection error.", "error");
       } finally {
         setIsInitializing(false);
       }
     };
 
-    initCRM();
+    verifySession();
   }, [token]);
-
-  // Keep client leads backup synchronized in localStorage on each modification
-  useEffect(() => {
-    if (clients && clients.length > 0) {
-      localStorage.setItem("smart_crm_backup_clients", JSON.stringify(clients));
-    }
-  }, [clients]);
 
   // Fetch client leads helper
   const fetchClients = async (authToken) => {
@@ -128,28 +94,9 @@ export default function App() {
   };
 
   // AuthSuccess handler called from AuthView
-  const handleAuthSuccess = (newToken, authenticatedUser, rememberMe) => {
-    if (rememberMe) {
-      localStorage.setItem("smart_crm_token", newToken);
-      sessionStorage.removeItem("smart_crm_token");
-    } else {
-      sessionStorage.setItem("smart_crm_token", newToken);
-      localStorage.removeItem("smart_crm_token");
-    }
+  const handleAuthSuccess = (newToken, authenticatedUser) => {
     setToken(newToken);
     setUser(authenticatedUser);
-
-    // Persist current active user & back-up list to browser storage for server recovery on sleep/restart
-    if (authenticatedUser) {
-      localStorage.setItem("smart_crm_current_user", JSON.stringify(authenticatedUser));
-      const backupUsers = JSON.parse(localStorage.getItem("smart_crm_backup_users") || "[]");
-      const exists = backupUsers.some((u) => u.id === authenticatedUser.id);
-      if (!exists) {
-        backupUsers.push(authenticatedUser);
-        localStorage.setItem("smart_crm_backup_users", JSON.stringify(backupUsers));
-      }
-    }
-
     fetchClients(newToken);
   };
 
@@ -166,9 +113,6 @@ export default function App() {
       }
     }
 
-    localStorage.removeItem("smart_crm_token");
-    sessionStorage.removeItem("smart_crm_token");
-    localStorage.removeItem("smart_crm_current_user");
     setToken(null);
     setUser(null);
     setClients([]);

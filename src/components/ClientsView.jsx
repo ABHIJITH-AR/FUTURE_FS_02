@@ -429,7 +429,7 @@ export default function ClientsView({
 
             <div className="p-4 bg-slate-900/30 border-t border-slate-850 flex items-center justify-between text-xs text-slate-500 font-mono">
               <span>Total Matches: {filteredClients.length} of {clients.length} listed</span>
-              <span>Indexed JSON File System storage active</span>
+              <span>Client Lead Ledger</span>
             </div>
           </div>
         </>

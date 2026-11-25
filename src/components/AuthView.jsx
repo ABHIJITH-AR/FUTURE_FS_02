@@ -11,7 +11,6 @@ export default function AuthView({ onAuthSuccess, setErrorAlert, setSuccessAlert
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState(null);
-  const [rememberMe, setRememberMe] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,21 +66,9 @@ export default function AuthView({ onAuthSuccess, setErrorAlert, setSuccessAlert
 
       if (isLogin) {
         setSuccessAlert("Signed in successfully! Welcome back to your CRM workspace.");
-        onAuthSuccess(data.token, data.user, rememberMe);
+        onAuthSuccess(data.token, data.user);
       } else {
         setSuccessAlert("You have registered successfully! Please sign in with your email and password.");
-        if (data.user) {
-          try {
-            const backupUsers = JSON.parse(localStorage.getItem("smart_crm_backup_users") || "[]");
-            const exists = backupUsers.some((u) => u.id === data.user.id);
-            if (!exists) {
-              backupUsers.push(data.user);
-              localStorage.setItem("smart_crm_backup_users", JSON.stringify(backupUsers));
-            }
-          } catch (e) {
-            console.error("Failed to backup registered user locally", e);
-          }
-        }
         setIsLogin(true);
         setPassword("");
         setConfirmPassword("");
@@ -274,23 +261,6 @@ export default function AuthView({ onAuthSuccess, setErrorAlert, setSuccessAlert
                 />
               </div>
             </div>
-
-            {isLogin && (
-              <div className="flex items-center justify-between pt-1">
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-800 bg-slate-950 text-blue-550 focus:ring-blue-550 focus:ring-offset-slate-900 focus:ring-1 cursor-pointer accent-blue-500"
-                    id="checkbox-remember-me"
-                  />
-                  <span className="text-xs text-slate-300 group-hover:text-slate-205 transition-colors select-none">
-                    Remember me
-                  </span>
-                </label>
-              </div>
-            )}
 
             {!isLogin && (
               <div>
