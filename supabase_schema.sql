@@ -44,3 +44,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON public.sessions(user_id);
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
+
+-- Ensure service_role has full access to public tables even if auto-grant was unchecked
+GRANT USAGE ON SCHEMA public TO service_role;
+GRANT ALL ON TABLE public.users, public.clients, public.sessions TO service_role;

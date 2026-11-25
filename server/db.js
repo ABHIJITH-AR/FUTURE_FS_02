@@ -156,6 +156,47 @@ function mapClientToDb(client) {
   };
 }
 
+function formatSupabaseError(context, error, fallbackMessage) {
+  console.error(`Supabase ${context} error:`, {
+    code: error?.code,
+    status: error?.status,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+  });
+
+  const msg = String(error?.message || "");
+  const code = String(error?.code || "");
+  const status = Number(error?.status || 0);
+
+  if (code === "42501" || /permission denied|row-level security/i.test(msg)) {
+    return new Error(
+      "Database permission denied. Check SUPABASE_SERVICE_ROLE_KEY (must be Secret/service_role key) and grant service_role table permissions in Supabase SQL Editor.",
+      { cause: error }
+    );
+  }
+  if (code === "42P01" || code === "PGRST205" || /could not find the table|relation .* does not exist/i.test(msg)) {
+    return new Error(
+      "Database tables not found. Run supabase_schema.sql in the same Supabase project as SUPABASE_URL.",
+      { cause: error }
+    );
+  }
+  if (status === 401 || status === 403 || /invalid api key|jwt|unauthorized/i.test(msg)) {
+    return new Error(
+      "Invalid Supabase API key. Verify SUPABASE_SERVICE_ROLE_KEY in Render Environment Variables.",
+      { cause: error }
+    );
+  }
+  if (/fetch failed|enotfound|econnrefused|network/i.test(msg)) {
+    return new Error(
+      "Unable to connect to Supabase. Verify SUPABASE_URL in Render Environment Variables.",
+      { cause: error }
+    );
+  }
+
+  return new Error(fallbackMessage, { cause: error });
+}
+
 // ==========================================
 // USERS DATA ACCESS
 // ==========================================
@@ -169,8 +210,7 @@ export async function findUserById(id) {
       .maybeSingle();
 
     if (error) {
-      console.error("Supabase findUserById error:", error);
-      throw new Error("Database query failed.", { cause: error });
+      throw formatSupabaseError("findUserById", error, "Database query failed.");
     }
     return mapUserFromDb(data);
   }
@@ -189,8 +229,7 @@ export async function findUserByEmail(email) {
       .maybeSingle();
 
     if (error) {
-      console.error("Supabase findUserByEmail error:", error);
-      throw new Error("Database query failed.", { cause: error });
+      throw formatSupabaseError("findUserByEmail", error, "Database query failed.");
     }
     return mapUserFromDb(data);
   }
@@ -213,8 +252,7 @@ export async function createUser(user) {
       .single();
 
     if (error) {
-      console.error("Supabase createUser error:", error);
-      throw new Error("Failed to register user in database.", { cause: error });
+      throw formatSupabaseError("createUser", error, "Failed to register user in database.");
     }
     return mapUserFromDb(data);
   }
@@ -241,8 +279,7 @@ export async function updateUser(id, fullName, email, passwordHash) {
       .select("id");
 
     if (error) {
-      console.error("Supabase updateUser error:", error);
-      throw new Error("Failed to update user profile.", { cause: error });
+      throw formatSupabaseError("updateUser", error, "Failed to update user profile.");
     }
     return Array.isArray(data) && data.length > 0;
   }
@@ -274,8 +311,7 @@ export async function getClientsByUserId(userId) {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Supabase getClientsByUserId error:", error);
-      throw new Error("Failed to load client leads.", { cause: error });
+      throw formatSupabaseError("getClientsByUserId", error, "Failed to load client leads.");
     }
     return (data || []).map(mapClientFromDb);
   }
@@ -292,8 +328,7 @@ export async function getClientById(id) {
       .maybeSingle();
 
     if (error) {
-      console.error("Supabase getClientById error:", error);
-      throw new Error("Failed to load client lead.", { cause: error });
+      throw formatSupabaseError("getClientById", error, "Failed to load client lead.");
     }
     return mapClientFromDb(data);
   }
@@ -310,8 +345,7 @@ export async function createClientRecord(client) {
       .single();
 
     if (error) {
-      console.error("Supabase createClientRecord error:", error);
-      throw new Error("Failed to create client lead.", { cause: error });
+      throw formatSupabaseError("createClientRecord", error, "Failed to create client lead.");
     }
     return mapClientFromDb(data);
   }
@@ -331,8 +365,7 @@ export async function createClientRecords(clients) {
       .select("*");
 
     if (error) {
-      console.error("Supabase createClientRecords error:", error);
-      throw new Error("Failed to create sample client leads.", { cause: error });
+      throw formatSupabaseError("createClientRecords", error, "Failed to create sample client leads.");
     }
     return (data || []).map(mapClientFromDb);
   }
@@ -364,8 +397,7 @@ export async function updateClientRecord(updated) {
       .maybeSingle();
 
     if (error) {
-      console.error("Supabase updateClientRecord error:", error);
-      throw new Error("Failed to update client lead.", { cause: error });
+      throw formatSupabaseError("updateClientRecord", error, "Failed to update client lead.");
     }
     return mapClientFromDb(data);
   }
@@ -390,8 +422,7 @@ export async function deleteClientRecord(id, userId) {
       .select("id");
 
     if (error) {
-      console.error("Supabase deleteClientRecord error:", error);
-      throw new Error("Failed to delete client lead.", { cause: error });
+      throw formatSupabaseError("deleteClientRecord", error, "Failed to delete client lead.");
     }
     return Array.isArray(data) && data.length > 0;
   }
@@ -421,8 +452,7 @@ export async function createSession(session) {
     });
 
     if (error) {
-      console.error("Supabase createSession error:", error);
-      throw new Error("Failed to create session.", { cause: error });
+      throw formatSupabaseError("createSession", error, "Failed to create session.");
     }
     return;
   }
@@ -442,8 +472,7 @@ export async function deleteSession(token) {
       .select("token");
 
     if (error) {
-      console.error("Supabase deleteSession error:", error);
-      throw new Error("Failed to delete session.", { cause: error });
+      throw formatSupabaseError("deleteSession", error, "Failed to delete session.");
     }
     return Array.isArray(data) && data.length > 0;
   }
@@ -467,8 +496,7 @@ export async function getSession(token) {
       .maybeSingle();
 
     if (error) {
-      console.error("Supabase getSession error:", error);
-      throw new Error("Failed to verify session.", { cause: error });
+      throw formatSupabaseError("getSession", error, "Failed to verify session.");
     }
     if (!data) return undefined;
 

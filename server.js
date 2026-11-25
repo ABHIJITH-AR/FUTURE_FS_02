@@ -201,7 +201,7 @@ app.post("/api/auth/register", async (req, res) => {
     });
   } catch (err) {
     console.error("Register error:", err);
-    res.status(500).json({ error: "Registration failed. Please try again." });
+    res.status(500).json({ error: err?.message || "Registration failed. Please try again." });
   }
 });
 
@@ -243,7 +243,7 @@ app.post("/api/auth/login", async (req, res) => {
     });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ error: "Sign in failed. Please try again." });
+    res.status(500).json({ error: err?.message || "Sign in failed. Please try again." });
   }
 });
 
