@@ -1,28 +1,25 @@
 import { useState } from "react";
-import { 
-  Users, 
-  TrendingUp, 
-  DollarSign, 
+import {
+  TrendingUp,
+  DollarSign,
   AlertCircle,
-  TrendingDown,
   Activity,
-  CheckCircle,
-  Clock,
-  UserX,
   Sparkles,
   Loader2,
   FileText,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 
-// Helper function to render inlined bold parts in custom Markdown parser
 function renderInlinedBold(text) {
   const parts = text.split(/\*\*([^*]+)\*\*/g);
   return parts.map((part, idx) => {
     if (idx % 2 === 1) {
       return (
-        <strong key={idx} className="font-extrabold text-blue-300 font-mono text-[11px] bg-slate-950/60 px-1 py-0.5 rounded border border-slate-800 mx-0.5 whitespace-nowrap">
+        <strong
+          key={idx}
+          className="font-extrabold text-blue-300 font-mono text-[11px] bg-slate-950/60 px-1 py-0.5 rounded border border-slate-800 mx-0.5 whitespace-nowrap"
+        >
           {part}
         </strong>
       );
@@ -31,14 +28,16 @@ function renderInlinedBold(text) {
   });
 }
 
-// Robust, elegant visual parser for markdown sections
 function formatMarkdown(text) {
   if (!text) return null;
   return text.split("\n").map((line, idx) => {
     const trimmed = line.trim();
     if (trimmed.startsWith("###")) {
       return (
-        <h4 key={idx} className="text-xs md:text-sm font-bold text-cyan-400 uppercase tracking-widest font-mono mt-5 mb-2.5 flex items-center gap-2 border-b border-slate-800/80 pb-1.5">
+        <h4
+          key={idx}
+          className="text-xs md:text-sm font-bold text-cyan-400 uppercase tracking-widest font-mono mt-5 mb-2.5 flex items-center gap-2 border-b border-slate-800/80 pb-1.5"
+        >
           <Sparkles size={14} className="text-cyan-400 shrink-0" />
           <span>{trimmed.replace(/^###\s*/, "")}</span>
         </h4>
@@ -46,7 +45,10 @@ function formatMarkdown(text) {
     }
     if (trimmed.startsWith("####")) {
       return (
-        <h5 key={idx} className="text-[11px] font-bold text-violet-400 uppercase mt-4 mb-2 font-mono tracking-wider flex items-center gap-1.5">
+        <h5
+          key={idx}
+          className="text-[11px] font-bold text-violet-400 uppercase mt-4 mb-2 font-mono tracking-wider flex items-center gap-1.5"
+        >
           <FileText size={12} className="text-violet-400 shrink-0" />
           <span>{trimmed.replace(/^####\s*/, "")}</span>
         </h5>
@@ -54,7 +56,10 @@ function formatMarkdown(text) {
     }
     if (trimmed.startsWith("##")) {
       return (
-        <h3 key={idx} className="text-sm md:text-base font-bold text-white mt-6 mb-3 border-b border-slate-800 pb-2 flex items-center gap-2">
+        <h3
+          key={idx}
+          className="text-sm md:text-base font-bold text-white mt-6 mb-3 border-b border-slate-800 pb-2 flex items-center gap-2"
+        >
           <span>{trimmed.replace(/^##\s*/, "")}</span>
         </h3>
       );
@@ -79,7 +84,6 @@ function formatMarkdown(text) {
   });
 }
 
-// SVG Arc path generator for Pie Chart sectors
 function getSectorPath(cx, cy, r, startAngle, endAngle) {
   if (endAngle - startAngle >= 360) {
     endAngle = startAngle + 359.99;
@@ -89,16 +93,15 @@ function getSectorPath(cx, cy, r, startAngle, endAngle) {
   const y1 = cy + r * Math.sin(startAngle * rad);
   const x2 = cx + r * Math.cos(endAngle * rad);
   const y2 = cy + r * Math.sin(endAngle * rad);
-  
+
   const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
-  
+
   return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
 }
 
-export default function AnalysisView({ user, clients, token, setActiveTab }) {
+export default function AnalysisView({ clients, token, setActiveTab }) {
   const [hoveredStatus, setHoveredStatus] = useState(null);
-  
-  // Predictive AI CRM Intelligence States
+
   const [aiReport, setAiReport] = useState("");
   const [loadingAi, setLoadingAi] = useState(false);
   const [aiError, setAiError] = useState("");
@@ -112,10 +115,10 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       let data = {};
       try {
         const text = await response.text();
@@ -131,14 +134,13 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
       } else {
         setAiError(data.error || "Failed to trigger analysis generator. Try again.");
       }
-    } catch (err) {
+    } catch {
       setAiError("Network timed out or is unaccessible. Run with local statistics.");
     } finally {
       setLoadingAi(false);
     }
   };
 
-  // Compute stats for visualization
   const totalClients = clients.length;
   const activeClients = clients.filter((c) => c.status === "Active").length;
   const pendingClients = clients.filter((c) => c.status === "Pending").length;
@@ -151,14 +153,13 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
   const mediumPriority = clients.filter((c) => c.priority === "Medium").length;
   const lowPriority = clients.filter((c) => c.priority === "Low").length;
 
-  // Pie chart segments logic
   const items = [
-    { label: "Active", count: activeClients, color: "url(#analysis-grad-Active)", solidColor: "#06b6d4", shadow: "rgba(6,182,212,0.5)", tailwindColor: "text-cyan-400", bg: "bg-cyan-500/10" },
-    { label: "Pending", count: pendingClients, color: "url(#analysis-grad-Pending)", solidColor: "#c084fc", shadow: "rgba(168,85,247,0.5)", tailwindColor: "text-purple-400", bg: "bg-purple-500/10" },
-    { label: "Inactive", count: inactiveClients, color: "url(#analysis-grad-Inactive)", solidColor: "#f43f5e", shadow: "rgba(244,63,94,0.5)", tailwindColor: "text-rose-400", bg: "bg-rose-500/10" },
-  ].filter(item => item.count > 0);
+    { label: "Active", count: activeClients, color: "url(#analysis-grad-Active)", shadow: "rgba(6,182,212,0.5)" },
+    { label: "Pending", count: pendingClients, color: "url(#analysis-grad-Pending)", shadow: "rgba(168,85,247,0.5)" },
+    { label: "Inactive", count: inactiveClients, color: "url(#analysis-grad-Inactive)", shadow: "rgba(244,63,94,0.5)" },
+  ].filter((item) => item.count > 0);
 
-  let currentAngle = -90; // Top of the circle (12 o'clock)
+  let currentAngle = -90;
   const paths = items.map((item, idx) => {
     const percentage = item.count / totalClients;
     const angleDelta = percentage * 360;
@@ -171,11 +172,11 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
       ...item,
       pathData,
       percentage: Math.round(percentage * 100),
-      idx
+      idx,
     };
   });
 
-  const hoveredPath = hoveredStatus ? paths.find(p => p.label === hoveredStatus) : null;
+  const hoveredPath = hoveredStatus ? paths.find((p) => p.label === hoveredStatus) : null;
 
   return (
     <div className="space-y-6" id="analysis-view">
@@ -188,7 +189,7 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
           <span>Back to Dashboard</span>
         </button>
       )}
-      {/* Header Panel */}
+
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -205,9 +206,7 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
         </div>
       </motion.div>
 
-      {/* Main Analysis Architecture Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-in" id="analysis-grid">
-        {/* Left Column: Visual Interactive SVG Pie Chart (5 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="analysis-grid">
         <div className="lg:col-span-5" id="analysis-pie-card-col">
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
@@ -220,11 +219,10 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
               <p className="text-[10px] text-slate-500 font-medium">Graphical status representation of leads.</p>
             </div>
 
-            {/* Render Circular Pie Chart */}
             <div className="relative h-64 w-64 flex items-center justify-center my-6 select-none" id="svg-pie-wrapper">
               {totalClients > 0 ? (
                 <>
-                  <svg viewBox="0 0 300 300" className="w-full h-full transform transition-all duration-355">
+                  <svg viewBox="0 0 300 300" className="w-full h-full transform transition-all duration-300">
                     <defs>
                       <linearGradient id="analysis-grad-Active" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stopColor="#06b6d4" />
@@ -253,27 +251,25 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
                             transformOrigin: "150px 150px",
                             transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                             filter: isHovered ? `drop-shadow(0 0 10px ${p.shadow})` : "none",
-                            cursor: "pointer"
+                            cursor: "pointer",
                           }}
                           onMouseEnter={() => setHoveredStatus(p.label)}
                           onMouseLeave={() => setHoveredStatus(null)}
                         />
                       );
                     })}
-                    {/* Inner hole mask to convert to high-end donut/pie hybrid with concentric details */}
                     <circle cx="150" cy="150" r="55" fill="#04091a" />
                     <circle cx="150" cy="150" r="55" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5" fill="none" />
                     <circle cx="150" cy="150" r="120" stroke="rgba(255,255,255,0.04)" strokeWidth="1" fill="none" />
                   </svg>
-                  
-                  {/* Center percentage output overlay */}
+
                   <div className="absolute text-center bg-[#04091a]/80 py-2.5 px-3 rounded-full border border-slate-800/60 backdrop-blur-sm pointer-events-none w-28">
-                    <span className="text-xl font-extrabold text-white font-mono leading-none">
-                      {hoveredPath ? (
-                        `${hoveredPath.percentage}%`
-                      ) : (
-                        totalClients > 0 ? `${Math.round((activeClients / totalClients) * 100)}%` : "0%"
-                      )}
+                    <span className="text-xl font-extrabold text-white font-mono leading-none tabular-nums">
+                      {hoveredPath
+                        ? `${hoveredPath.percentage}%`
+                        : totalClients > 0
+                        ? `${Math.round((activeClients / totalClients) * 100)}%`
+                        : "0%"}
                     </span>
                     <p className="text-[9px] uppercase font-mono tracking-widest text-slate-400 font-bold mt-0.5 leading-none">
                       {hoveredPath ? hoveredPath.label : "Active"}
@@ -282,45 +278,41 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
                 </>
               ) : (
                 <div className="flex flex-col items-center justify-center text-slate-500 text-center">
-                  <span className="text-4xl mb-2">📊</span>
                   <p className="text-xs font-mono uppercase tracking-wider">No leads recorded yet</p>
                 </div>
               )}
             </div>
 
-            {/* Color Map Labels */}
             <div className="grid grid-cols-3 gap-2 w-full border-t border-slate-800/80 pt-4 text-center font-mono select-none">
-              <div 
+              <div
                 className={`py-1 rounded-lg transition-all ${hoveredStatus === "Active" ? "bg-slate-800" : ""}`}
                 onMouseEnter={() => setHoveredStatus("Active")}
                 onMouseLeave={() => setHoveredStatus(null)}
               >
                 <span className="inline-block h-2 w-2 rounded-full bg-cyan-500 mr-1.5" />
-                <span className="text-[10px] text-slate-355 font-semibold">Active ({activeClients})</span>
+                <span className="text-[10px] text-slate-300 font-semibold tabular-nums">Active ({activeClients})</span>
               </div>
-              <div 
+              <div
                 className={`py-1 rounded-lg transition-all ${hoveredStatus === "Pending" ? "bg-slate-800" : ""}`}
                 onMouseEnter={() => setHoveredStatus("Pending")}
                 onMouseLeave={() => setHoveredStatus(null)}
               >
                 <span className="inline-block h-2 w-2 rounded-full bg-purple-500 mr-1.5" />
-                <span className="text-[10px] text-slate-355 font-semibold">Pending ({pendingClients})</span>
+                <span className="text-[10px] text-slate-300 font-semibold tabular-nums">Pending ({pendingClients})</span>
               </div>
-              <div 
+              <div
                 className={`py-1 rounded-lg transition-all ${hoveredStatus === "Inactive" ? "bg-slate-800" : ""}`}
                 onMouseEnter={() => setHoveredStatus("Inactive")}
                 onMouseLeave={() => setHoveredStatus(null)}
               >
                 <span className="inline-block h-2 w-2 rounded-full bg-rose-500 mr-1.5" />
-                <span className="text-[10px] text-slate-355 font-semibold">Inactive ({inactiveClients})</span>
+                <span className="text-[10px] text-slate-300 font-semibold tabular-nums">Inactive ({inactiveClients})</span>
               </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Right Column: Dynamic Statistics Overview List (7 cols) */}
         <div className="lg:col-span-7 flex flex-col gap-6" id="analysis-stats-col">
-          {/* Main Key Figures List Cards */}
           <div className="grid grid-cols-2 gap-4" id="analysis-bento-stats">
             <div className="rounded-xl border border-slate-850 bg-slate-900/60 p-5 shadow-lg flex flex-col justify-between">
               <div>
@@ -328,7 +320,7 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
                   <DollarSign className="text-emerald-400" size={14} />
                   <span>Pipeline Worth</span>
                 </div>
-                <p className="text-2xl font-extrabold text-slate-50 font-mono">${totalDealValue.toLocaleString()}</p>
+                <p className="text-2xl font-extrabold text-slate-50 font-mono tabular-nums">${totalDealValue.toLocaleString()}</p>
               </div>
               <p className="text-[10px] text-slate-500 mt-4 leading-relaxed font-medium">Accumulated deal contracts from active leads.</p>
             </div>
@@ -339,7 +331,7 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
                   <TrendingUp className="text-purple-400" size={14} />
                   <span>Ticket Rate</span>
                 </div>
-                <p className="text-2xl font-extrabold text-slate-50 font-mono">${averageDealValue.toLocaleString()}</p>
+                <p className="text-2xl font-extrabold text-slate-50 font-mono tabular-nums">${averageDealValue.toLocaleString()}</p>
               </div>
               <p className="text-[10px] text-slate-500 mt-4 leading-relaxed font-medium">Average deal amount computed across database records.</p>
             </div>
@@ -350,9 +342,9 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
                   <AlertCircle className="text-rose-400" size={14} />
                   <span>Urgent Leads</span>
                 </div>
-                <p className="text-2xl font-extrabold text-slate-50 font-mono">{highPriority}</p>
+                <p className="text-2xl font-extrabold text-slate-50 font-mono tabular-nums">{highPriority}</p>
               </div>
-              <p className="text-[10px] text-slate-500 mt-4 leading-relaxed font-semibold text-rose-500/80">Immediate attention action-point records.</p>
+              <p className="text-[10px] mt-4 leading-relaxed font-semibold text-rose-500/80">Immediate attention action-point records.</p>
             </div>
 
             <div className="rounded-xl border border-slate-850 bg-slate-900/60 p-5 shadow-lg flex flex-col justify-between">
@@ -361,18 +353,17 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
                   <Activity className="text-blue-400" size={14} />
                   <span>Projections</span>
                 </div>
-                <p className="text-2xl font-extrabold text-slate-50 font-mono">{mediumPriority + lowPriority}</p>
+                <p className="text-2xl font-extrabold text-slate-50 font-mono tabular-nums">{mediumPriority + lowPriority}</p>
               </div>
               <p className="text-[10px] text-slate-500 mt-4 leading-relaxed font-medium">Active and pending leads currently in stable priority.</p>
             </div>
           </div>
 
-          {/* detailed Lead ledger progress table */}
           <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 shadow-lg flex-1">
             <h4 className="text-xs font-extrabold text-slate-200 uppercase tracking-widest font-mono mb-4 border-b border-slate-800 pb-2">
               Pipeline Health Indicators
             </h4>
-            
+
             <div className="space-y-4 font-sans">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 text-slate-300">
@@ -381,7 +372,7 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
                   </span>
                   <span className="font-medium">Direct Target conversions</span>
                 </div>
-                <span className="font-mono text-slate-100 font-bold">{activeClients} accounts</span>
+                <span className="font-mono text-slate-100 font-bold tabular-nums">{activeClients} accounts</span>
               </div>
               <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
                 <div className="bg-emerald-500 h-full" style={{ width: `${totalClients > 0 ? (activeClients / totalClients) * 100 : 0}%` }} />
@@ -394,7 +385,7 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
                   </span>
                   <span className="font-medium">Active communications</span>
                 </div>
-                <span className="font-mono text-slate-100 font-bold">{pendingClients} accounts</span>
+                <span className="font-mono text-slate-100 font-bold tabular-nums">{pendingClients} accounts</span>
               </div>
               <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
                 <div className="bg-amber-500 h-full" style={{ width: `${totalClients > 0 ? (pendingClients / totalClients) * 100 : 0}%` }} />
@@ -405,9 +396,9 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
                   <span className="p-1 px-1.5 rounded-md bg-slate-500/15 text-slate-400 font-bold font-mono">
                     Inactive
                   </span>
-                  <span className="font-medium font-mono font-sans">Cold prospects</span>
+                  <span className="font-medium">Cold prospects</span>
                 </div>
-                <span className="font-mono text-slate-100 font-bold">{inactiveClients} accounts</span>
+                <span className="font-mono text-slate-100 font-bold tabular-nums">{inactiveClients} accounts</span>
               </div>
               <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
                 <div className="bg-slate-500 h-full" style={{ width: `${totalClients > 0 ? (inactiveClients / totalClients) * 100 : 0}%` }} />
@@ -417,7 +408,6 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
         </div>
       </div>
 
-      {/* Advanced AI Prediction / Analytics briefing panel */}
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
@@ -426,7 +416,7 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
         id="ai-briefing-panel"
       >
         <div className="absolute top-0 right-0 h-32 w-32 bg-gradient-to-br from-cyan-500/10 to-violet-500/10 rounded-full blur-2xl pointer-events-none" />
-        
+
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
           <div>
             <div className="flex items-center gap-2">
@@ -461,14 +451,13 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
           </button>
         </div>
 
-        {/* Dynamic Display Area */}
         <div className="mt-5 min-h-[140px] flex flex-col justify-center">
           {loadingAi ? (
             <div className="flex flex-col items-center justify-center py-10 text-slate-400 space-y-3 font-mono">
               <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
               <div className="text-center space-y-1">
-                <p className="text-xs tracking-wider uppercase font-bold text-slate-350">Assembling pipeline statistics...</p>
-                <p className="text-[10px] text-slate-500">Retrieving intelligence models (Predictive-AI-3.5)</p>
+                <p className="text-xs tracking-wider uppercase font-bold text-slate-300">Assembling pipeline statistics...</p>
+                <p className="text-[10px] text-slate-500">Compiling pipeline analysis</p>
               </div>
             </div>
           ) : aiError ? (
@@ -477,7 +466,7 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
               <div className="space-y-1">
                 <p className="font-bold">Execution Interrupted</p>
                 <p className="text-slate-300 leading-relaxed font-sans">{aiError}</p>
-                <button 
+                <button
                   onClick={generateAiAnalysis}
                   className="mt-2 text-red-300 hover:text-white font-bold underline cursor-pointer"
                 >
@@ -488,26 +477,27 @@ export default function AnalysisView({ user, clients, token, setActiveTab }) {
           ) : aiReport ? (
             <div className="space-y-4 max-w-none text-slate-200">
               {isMissingKey && (
-                <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl flex items-center gap-2.5 text-[10px] text-blue-450 mb-4 select-none font-sans">
+                <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl flex items-center gap-2.5 text-[10px] text-blue-300 mb-4 select-none font-sans">
                   <AlertCircle size={14} className="text-blue-400 shrink-0" />
                   <span>
-                    <strong>Offline Intelligence Match:</strong> Displaying local stats summary. Configure <strong>AI_API_KEY</strong> in <strong>Settings</strong> secrets to enable true AI-powered predictions!
+                    <strong>Offline Intelligence Match:</strong> Displaying local stats summary. Configure{" "}
+                    <strong>AI_API_KEY</strong> in environment settings to enable AI-powered predictions.
                   </span>
                 </div>
               )}
-              
+
               <div className="bg-slate-950/40 border border-slate-800/80 p-5 rounded-2xl leading-relaxed pr-6 shadow-inner font-sans">
                 {formatMarkdown(aiReport)}
               </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center text-slate-500 max-w-md mx-auto">
-              <Sparkles size={28} className="text-cyan-500/30 mb-3 animate-pulse" />
+              <Sparkles size={28} className="text-cyan-500/30 mb-3" />
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">
                 Pipeline Report Awaiting Calculation
               </h4>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                Click the **Run Pipeline Intelligence** button above to compile standard offline distribution parameters or dynamic predictive observations.
+                Click the Run Pipeline Intelligence button above to compile distribution parameters and growth observations.
               </p>
             </div>
           )}

@@ -6,7 +6,7 @@
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Overriding default slate colors to map everything into a luxurious deep dark blue palette */
+  /* Overriding default slate colors to map everything into a deep dark blue palette */
   --color-slate-950: #04091a;
   --color-slate-900: #071130;
   --color-slate-850: #0b1842;
@@ -24,7 +24,7 @@ html, body {
   min-height: 100vh;
 }
 
-/* Custom premium scrollbar styling */
+/* Custom scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -62,17 +62,4 @@ html, body {
 
 .animate-glow-slower {
   animation: ambientGlow 18s infinite alternate-reverse ease-in-out;
-}
-
-/* Glassmorphism helpers */
-.glass-panel {
-  background: rgba(7, 17, 48, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.glass-panel-active {
-  background: rgba(11, 24, 66, 0.85);
-  border-color: rgba(56, 189, 248, 0.25);
-  box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.1);
 }

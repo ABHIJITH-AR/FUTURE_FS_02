@@ -26,7 +26,6 @@ export default function App() {
 
   const showToast = (message, type = "success") => {
     setAlert({ message, type });
-    // Automatically fade out after 4 seconds
     setTimeout(() => {
       setAlert((prev) => (prev && prev.message === message ? null : prev));
     }, 4000);
@@ -117,10 +116,9 @@ export default function App() {
     setUser(null);
     setClients([]);
     setActiveTab("dashboard");
+    setIsAddModalOpen(false);
     showToast("Session disconnected successfully.", "info");
   };
-
-  // CRUD API integrations
 
   // 1. Add Client Lead
   const handleAddClient = async (clientData) => {
@@ -144,7 +142,7 @@ export default function App() {
         showToast(data.error || "Failed to add client lead.", "error");
         return false;
       }
-    } catch (err) {
+    } catch {
       showToast("Network failure. Please retry.", "error");
       return false;
     }
@@ -174,7 +172,7 @@ export default function App() {
         showToast(data.error || "Failed to save prospect changes.", "error");
         return false;
       }
-    } catch (err) {
+    } catch {
       showToast("Network failure. Please retry.", "error");
       return false;
     }
@@ -198,7 +196,7 @@ export default function App() {
         showToast(data.error || "Failed to discard prospect lead.", "error");
         return false;
       }
-    } catch (err) {
+    } catch {
       showToast("Network failure. Please retry.", "error");
       return false;
     }
@@ -222,7 +220,7 @@ export default function App() {
         showToast(data.error || "Failed to seed sample leads.", "error");
         return false;
       }
-    } catch (err) {
+    } catch {
       showToast("Network failure. Please retry.", "error");
       return false;
     }
@@ -249,7 +247,7 @@ export default function App() {
         showToast(data.error || "Failed to update profile.", "error");
         return false;
       }
-    } catch (err) {
+    } catch {
       showToast("Network failure. Please retry.", "error");
       return false;
     }
@@ -275,7 +273,7 @@ export default function App() {
         showToast(data.error || "Password update failed.", "error");
         return false;
       }
-    } catch (err) {
+    } catch {
       showToast("Network failure. Please retry.", "error");
       return false;
     }
@@ -302,7 +300,6 @@ export default function App() {
           setErrorAlert={(msg) => showToast(msg, "error")}
           setSuccessAlert={(msg) => showToast(msg, "success")}
         />
-        {/* Toast Toast alerts */}
         <AnimatePresence>
           {alert && (
             <motion.div
@@ -332,37 +329,41 @@ export default function App() {
     );
   }
 
+  const handleNavigateTab = (tab) => {
+    setIsAddModalOpen(false);
+    setActiveTab(tab);
+  };
+
   // Main Authenticated Workspace Layout
   return (
     <div className="flex min-h-screen bg-[#04091a] text-slate-200" id="crm-app-root">
-      {/* Sidebar navigation */}
       <Sidebar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleNavigateTab}
         user={user}
         onLogout={handleLogout}
         mobileOpen={mobileSidebarOpen}
         setMobileOpen={setMobileSidebarOpen}
       />
 
-      {/* Main viewport */}
       <div className="flex-1 flex flex-col min-w-0" id="main-viewport-content">
         <Navbar
           user={user}
           setMobileOpen={setMobileSidebarOpen}
-          setActiveTab={setActiveTab}
+          setActiveTab={handleNavigateTab}
           onLogout={handleLogout}
         />
 
-        {/* View container */}
         <main className="flex-1 p-6 max-w-7xl w-full mx-auto pb-16 overflow-y-auto">
           {activeTab === "dashboard" && (
             <DashboardView
               user={user}
               clients={clients}
-              setActiveTab={setActiveTab}
-              onOpenAddModal={() => setIsAddModalOpen(true)}
-              token={token}
+              setActiveTab={handleNavigateTab}
+              onOpenAddModal={() => {
+                setActiveTab("clients");
+                setIsAddModalOpen(true);
+              }}
             />
           )}
 
@@ -374,17 +375,16 @@ export default function App() {
               onDeleteClient={handleDeleteClient}
               isAddModalOpen={isAddModalOpen}
               setIsAddModalOpen={setIsAddModalOpen}
-               onSeedClients={handleSeedClients}
-              setActiveTab={setActiveTab}
+              onSeedClients={handleSeedClients}
+              setActiveTab={handleNavigateTab}
             />
           )}
 
           {activeTab === "analysis" && user && token && (
             <AnalysisView
-              user={user}
               clients={clients}
               token={token}
-              setActiveTab={setActiveTab}
+              setActiveTab={handleNavigateTab}
             />
           )}
 
@@ -395,13 +395,12 @@ export default function App() {
               onChangePassword={handleChangePassword}
               setErrorAlert={(msg) => showToast(msg, "error")}
               setSuccessAlert={(msg) => showToast(msg, "success")}
-              setActiveTab={setActiveTab}
+              setActiveTab={handleNavigateTab}
             />
           )}
         </main>
       </div>
 
-      {/* Global animated floating toast notification drawer */}
       <AnimatePresence>
         {alert && (
           <motion.div
@@ -413,7 +412,7 @@ export default function App() {
                 ? "bg-slate-900/95 border-emerald-500/35 text-emerald-400"
                 : alert.type === "error"
                 ? "bg-slate-900/95 border-red-500/35 text-red-400"
-                : "bg-slate-900/95 border-blue-500/35 text-blue-450"
+                : "bg-slate-900/95 border-blue-500/35 text-blue-400"
             }`}
           >
             {alert.type === "success" ? (

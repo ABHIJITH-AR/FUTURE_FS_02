@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Users, UserCheck, Clock, ShieldAlert, Award, Plus, ArrowRight, Sparkles, Loader2, RefreshCw } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { Users, UserCheck, Clock, Award, Plus, ArrowRight } from "lucide-react";
+import { motion } from "motion/react";
 
 const GRADIENTS = [
   "from-cyan-500 to-blue-600 text-cyan-50",
@@ -8,32 +8,23 @@ const GRADIENTS = [
   "from-pink-500 to-rose-600 text-pink-50",
   "from-amber-500 to-orange-600 text-amber-50",
   "from-emerald-500 to-teal-600 text-emerald-50",
-  "from-violet-500 to-fuchsia-600 text-violet-50"
-];
-
-const PRESET_AVATARS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150&q=80",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80",
-  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&h=150&q=80",
-  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&h=150&q=80"
+  "from-violet-500 to-fuchsia-600 text-violet-50",
 ];
 
 function getAvatarFallback(fullName) {
   const name = fullName || "?";
   const index = Math.abs(name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)) % GRADIENTS.length;
-  const initials = name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase() || "?";
+  const initials =
+    name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || "?";
   return { initials, gradient: GRADIENTS[index] };
 }
 
-// SVG Arc path generator for Pie Chart sectors
 function getSectorPath(cx, cy, r, startAngle, endAngle) {
   if (endAngle - startAngle >= 360) {
     endAngle = startAngle + 359.99;
@@ -43,9 +34,9 @@ function getSectorPath(cx, cy, r, startAngle, endAngle) {
   const y1 = cy + r * Math.sin(startAngle * rad);
   const x2 = cx + r * Math.cos(endAngle * rad);
   const y2 = cy + r * Math.sin(endAngle * rad);
-  
+
   const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
-  
+
   return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
 }
 
@@ -54,22 +45,17 @@ export default function DashboardView({
   clients,
   setActiveTab,
   onOpenAddModal,
-  token,
 }) {
-  // Interactive Pie Chart hover state
   const [hoveredStatus, setHoveredStatus] = useState(null);
 
-  // Compute Stats
   const totalClients = clients.length;
   const activeClients = clients.filter((c) => c.status === "Active").length;
   const pendingClients = clients.filter((c) => c.status === "Pending").length;
   const inactiveClients = clients.filter((c) => c.status === "Inactive").length;
 
-  const conversionRate = totalClients > 0 
-    ? Math.round((activeClients / totalClients) * 100) 
-    : 0;
+  const conversionRate =
+    totalClients > 0 ? Math.round((activeClients / totalClients) * 100) : 0;
 
-  // Get 4 most recent leads
   const recentLeads = [...clients]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 4);
@@ -110,10 +96,25 @@ export default function DashboardView({
   ];
 
   const chartSegments = [
-    { label: "Active", count: activeClients, color: "url(#gradient-Active)", solidColor: "#06b6d4", shadow: "rgba(6,182,212,0.5)", textColor: "text-cyan-400" },
-    { label: "Pending", count: pendingClients, color: "url(#gradient-Pending)", solidColor: "#c084fc", shadow: "rgba(168,85,247,0.5)", textColor: "text-purple-400" },
-    { label: "Inactive", count: inactiveClients, color: "url(#gradient-Inactive)", solidColor: "#f43f5e", shadow: "rgba(244,63,94,0.5)", textColor: "text-rose-400" },
-  ].filter(item => item.count > 0);
+    {
+      label: "Active",
+      count: activeClients,
+      color: "url(#gradient-Active)",
+      shadow: "rgba(6,182,212,0.5)",
+    },
+    {
+      label: "Pending",
+      count: pendingClients,
+      color: "url(#gradient-Pending)",
+      shadow: "rgba(168,85,247,0.5)",
+    },
+    {
+      label: "Inactive",
+      count: inactiveClients,
+      color: "url(#gradient-Inactive)",
+      shadow: "rgba(244,63,94,0.5)",
+    },
+  ].filter((item) => item.count > 0);
 
   let tempAngle = -90;
   const sectors = chartSegments.map((item) => {
@@ -126,11 +127,13 @@ export default function DashboardView({
     return {
       ...item,
       pathData,
-      percentage: Math.round(percentage * 100)
+      percentage: Math.round(percentage * 100),
     };
   });
 
-  const activeHoveredSector = hoveredStatus ? sectors.find(s => s.label === hoveredStatus) : null;
+  const activeHoveredSector = hoveredStatus
+    ? sectors.find((s) => s.label === hoveredStatus)
+    : null;
 
   return (
     <div className="space-y-8" id="dashboard-view">
@@ -146,7 +149,7 @@ export default function DashboardView({
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-              Welcome Back, {user.fullName} 👋
+              Welcome Back, {user.fullName}
             </h1>
             <p className="text-slate-400 text-sm mt-1.5 font-medium">
               We have compiled your real-time client acquisition analytics pipeline below.
@@ -155,7 +158,7 @@ export default function DashboardView({
           <div className="flex flex-wrap gap-3">
             <button
               onClick={onOpenAddModal}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-600 hover:to-violet-700 text-white font-semibold text-sm px-4.5 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(139,92,246,0.3)] transition-all cursor-pointer group"
+              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-600 hover:to-violet-700 text-white font-semibold text-sm px-4.5 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(139,92,246,0.3)] transition-all cursor-pointer group whitespace-nowrap shrink-0"
               id="btn-quick-add"
             >
               <Plus size={16} className="group-hover:rotate-90 transition-transform duration-200" />
@@ -163,7 +166,7 @@ export default function DashboardView({
             </button>
             <button
               onClick={() => setActiveTab("clients")}
-              className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-sm font-semibold px-4.5 py-2.5 rounded-xl transition-all cursor-pointer"
+              className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-sm font-semibold px-4.5 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap shrink-0"
               id="btn-quick-view"
             >
               <span>Manage Leads</span>
@@ -182,24 +185,24 @@ export default function DashboardView({
               key={stat.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              whileHover={{ 
-                y: -6, 
+              whileHover={{
+                y: -6,
                 scale: 1.02,
-                borderColor: stat.id === "stat-total" ? "rgba(6, 182, 212, 0.4)" : 
-                             stat.id === "stat-active" ? "rgba(16, 185, 129, 0.4)" :
-                             stat.id === "stat-pending" ? "rgba(245, 158, 11, 0.4)" :
-                                                         "rgba(139, 92, 246, 0.4)",
-                 boxShadow: stat.id === "stat-total" ? "0 10px 25px -5px rgba(6, 182, 212, 0.15)" : 
-                            stat.id === "stat-active" ? "0 10px 25px -5px rgba(16, 185, 129, 0.15)" :
-                            stat.id === "stat-pending" ? "0 10px 25px -5px rgba(245, 158, 11, 0.15)" :
-                                                        "0 10px 25px -5px rgba(139, 92, 246, 0.15)"
+                borderColor:
+                  stat.id === "stat-total"
+                    ? "rgba(6, 182, 212, 0.4)"
+                    : stat.id === "stat-active"
+                    ? "rgba(16, 185, 129, 0.4)"
+                    : stat.id === "stat-pending"
+                    ? "rgba(245, 158, 11, 0.4)"
+                    : "rgba(139, 92, 246, 0.4)",
               }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 300, 
+              transition={{
+                type: "spring",
+                stiffness: 300,
                 damping: 18,
                 opacity: { duration: 0.3, delay: idx * 0.04 },
-                y: { type: "spring", stiffness: 300, damping: 15 }
+                y: { type: "spring", stiffness: 300, damping: 15 },
               }}
               className="group relative overflow-hidden rounded-2xl border border-slate-800/70 bg-slate-900/60 p-5 shadow-lg backdrop-blur-md transition-all duration-300 cursor-pointer"
               id={stat.id}
@@ -209,18 +212,12 @@ export default function DashboardView({
                 <span className="text-xs font-mono tracking-wider text-slate-400 font-semibold uppercase">
                   {stat.label}
                 </span>
-                <motion.div 
-                  variants={{
-                    hover: { scale: 1.1, rotate: [0, -10, 10, 0] }
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg ${stat.shadow}`}
-                >
+                <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg ${stat.shadow}`}>
                   <Icon size={18} />
-                </motion.div>
+                </div>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold text-white tracking-tight">
+                <span className="text-3xl font-extrabold text-white tracking-tight tabular-nums">
                   {stat.value}
                 </span>
               </div>
@@ -231,7 +228,6 @@ export default function DashboardView({
 
       {/* Visual Analytics Section & Recent Clients Split */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Real-time Interactive SVG Pie Chart Card */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -241,16 +237,19 @@ export default function DashboardView({
         >
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-base font-bold text-white font-display tracking-tight">Status Breakdown & Pipelines</h3>
-              <p className="text-xs text-slate-505 font-medium">Real-time graphic status division of your indexed client accounts.</p>
+              <h3 className="text-base font-bold text-white font-display tracking-tight">
+                Status Breakdown & Pipelines
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">
+                Real-time graphic status division of your indexed client accounts.
+              </p>
             </div>
-            <span className="text-xs font-mono font-bold bg-slate-850 border border-slate-800 text-cyan-455 px-3 py-1 rounded-full">
-              ● Live Distribution
+            <span className="text-xs font-mono font-bold bg-slate-850 border border-slate-800 text-cyan-400 px-3 py-1 rounded-full">
+              Live Distribution
             </span>
           </div>
 
-           <div className="flex flex-col md:flex-row items-center justify-around gap-8 py-6">
-            {/* Interactive Pie Chart SVG */}
+          <div className="flex flex-col md:flex-row items-center justify-around gap-8 py-6">
             <div className="relative h-56 w-56 flex items-center justify-center select-none" id="dashboard-pie-svg-wrapper">
               {totalClients > 0 ? (
                 <>
@@ -283,27 +282,21 @@ export default function DashboardView({
                             transformOrigin: "100px 100px",
                             transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                             filter: isHovered ? `drop-shadow(0 0 8px ${p.shadow})` : "none",
-                            cursor: "pointer"
+                            cursor: "pointer",
                           }}
                           onMouseEnter={() => setHoveredStatus(p.label)}
                           onMouseLeave={() => setHoveredStatus(null)}
                         />
                       );
                     })}
-                    {/* Donut inner core mask with beautiful rings */}
                     <circle cx="100" cy="100" r="45" fill="#071130" />
                     <circle cx="100" cy="100" r="45" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5" fill="none" />
                     <circle cx="100" cy="100" r="85" stroke="rgba(255,255,255,0.04)" strokeWidth="1" fill="none" />
                   </svg>
-                  
-                  {/* Center overlay indicator */}
+
                   <div className="absolute text-center bg-[#071130]/90 py-2 px-3 rounded-full border border-slate-800/80 backdrop-blur-md pointer-events-none w-24">
-                    <span className="text-lg font-extrabold text-white font-mono leading-none">
-                      {activeHoveredSector ? (
-                        `${activeHoveredSector.percentage}%`
-                      ) : (
-                        `${conversionRate}%`
-                      )}
+                    <span className="text-lg font-extrabold text-white font-mono leading-none tabular-nums">
+                      {activeHoveredSector ? `${activeHoveredSector.percentage}%` : `${conversionRate}%`}
                     </span>
                     <p className="text-[9px] uppercase font-mono tracking-wider text-slate-400 font-bold mt-0.5 leading-none">
                       {activeHoveredSector ? activeHoveredSector.label : "Success"}
@@ -312,23 +305,21 @@ export default function DashboardView({
                 </>
               ) : (
                 <div className="flex flex-col items-center justify-center text-slate-500 text-center">
-                  <span className="text-3xl mb-2">📊</span>
                   <p className="text-xs font-mono uppercase tracking-wider">No leads recorded</p>
                 </div>
               )}
             </div>
 
-            {/* Custom Interactive Legend Keys */}
             <div className="space-y-4 shrink-0 font-sans w-full md:w-auto">
               {[
                 { label: "Active", count: activeClients, color: "bg-cyan-500" },
                 { label: "Pending", count: pendingClients, color: "bg-purple-500" },
-                { label: "Inactive", count: inactiveClients, color: "bg-rose-500" }
+                { label: "Inactive", count: inactiveClients, color: "bg-rose-500" },
               ].map((item) => {
                 const isHovered = hoveredStatus === item.label;
                 const ratio = totalClients > 0 ? Math.round((item.count / totalClients) * 100) : 0;
                 return (
-                  <div 
+                  <div
                     key={item.label}
                     className={`flex items-center justify-between md:justify-start gap-4 p-2.5 rounded-xl border transition-all duration-200 ${
                       isHovered ? "bg-slate-850 border-slate-750" : "bg-transparent border-transparent"
@@ -341,10 +332,10 @@ export default function DashboardView({
                       <span className={`h-3 w-3 rounded-full ${item.color}`} />
                       <div>
                         <p className="text-xs font-bold text-slate-200">{item.label} Leads</p>
-                        <p className="text-[10px] text-slate-500 font-semibold font-mono">{ratio}% ratio</p>
+                        <p className="text-[10px] text-slate-500 font-semibold font-mono tabular-nums">{ratio}% ratio</p>
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-extrabold text-slate-350 ml-auto bg-slate-900 px-2 py-0.5 rounded-md border border-slate-850">
+                    <span className="text-xs font-mono font-extrabold text-slate-300 ml-auto bg-slate-900 px-2 py-0.5 rounded-md border border-slate-850 tabular-nums">
                       {item.count}
                     </span>
                   </div>
@@ -360,7 +351,6 @@ export default function DashboardView({
           </div>
         </motion.div>
 
-        {/* Recent Client List */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -395,12 +385,14 @@ export default function DashboardView({
                       {(() => {
                         const { initials, gradient } = getAvatarFallback(cli.fullName);
                         return (
-                          <div className={`h-8 w-8 rounded-full bg-gradient-to-br ${gradient} border border-slate-800/80 flex-shrink-0 flex items-center justify-center font-bold text-[10px] tracking-wide select-none uppercase font-sans`}>
+                          <div
+                            className={`h-8 w-8 rounded-full bg-gradient-to-br ${gradient} border border-slate-800/80 flex-shrink-0 flex items-center justify-center font-bold text-[10px] tracking-wide select-none uppercase font-sans`}
+                          >
                             {initials}
                           </div>
                         );
                       })()}
-                      
+
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-slate-100 truncate">{cli.fullName}</p>
                         <p className="text-[11px] text-slate-400 truncate">{cli.companyName}</p>
@@ -425,7 +417,7 @@ export default function DashboardView({
 
           <div className="mt-5 border-t border-slate-800/60 pt-4 text-center">
             <p className="text-[11px] text-slate-500 font-mono tracking-wide uppercase opacity-75">
-              High-Performance Indexed Document Storage Active
+              Client Pipeline Overview
             </p>
           </div>
         </motion.div>

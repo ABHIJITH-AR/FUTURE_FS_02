@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, LineChart, Settings, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, Users, LineChart, Settings, LogOut, X } from "lucide-react";
 import Logo from "./Logo";
 
 export default function Sidebar({
@@ -10,32 +10,15 @@ export default function Sidebar({
   setMobileOpen,
 }) {
   const menuItems = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      id: "clients",
-      label: "Leads",
-      icon: Users,
-    },
-    {
-      id: "analysis",
-      label: "Analysis",
-      icon: LineChart,
-    },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: Settings,
-    },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "clients", label: "Leads", icon: Users },
+    { id: "analysis", label: "Analysis", icon: LineChart },
+    { id: "settings", label: "Settings", icon: Settings },
   ];
 
   const sidebarContent = (
     <div className="flex h-full flex-col justify-between bg-slate-900 border-r border-slate-800 p-4" id="sidebar-panel">
       <div>
-        {/* Logo and Brand */}
         <div className="flex items-center justify-between mb-8 px-2">
           <Logo size="sm" />
           <button
@@ -47,7 +30,6 @@ export default function Sidebar({
           </button>
         </div>
 
-        {/* Menu Navigation */}
         <nav className="space-y-1.5" id="sidebar-nav">
           {menuItems.map((item) => {
             const isActive = activeTab === item.id;
@@ -62,8 +44,8 @@ export default function Sidebar({
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer text-left group ${
                   isActive
-                    ? "bg-gradient-to-r from-blue-500/20 to-violet-600/20 text-blue-400 border-l-4 border-violet-500 shadow-[inset_0_0_12px_rgba(139,92,246,0.1)] "
-                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+                    ? "bg-gradient-to-r from-blue-500/20 to-violet-600/20 text-blue-400 border border-violet-500/40 shadow-[inset_0_0_12px_rgba(139,92,246,0.1)]"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 border border-transparent"
                 }`}
                 id={`nav-${item.id}`}
               >
@@ -80,7 +62,6 @@ export default function Sidebar({
         </nav>
       </div>
 
-      {/* User Information & Logout */}
       <div className="border-t border-slate-800 pt-4" id="sidebar-footer">
         {user && (
           <div className="flex items-center gap-3 px-2 mb-4">
@@ -112,12 +93,10 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Desktop Sidebar */}
       <aside className="hidden md:block w-64 h-screen shrink-0 sticky top-0" id="desktop-sidebar">
         {sidebarContent}
       </aside>
 
-      {/* Mobile Drawer Backdrop */}
       {mobileOpen && (
         <div
           className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
@@ -126,7 +105,6 @@ export default function Sidebar({
         />
       )}
 
-      {/* Mobile Sidebar Cabinet */}
       <div
         className={`md:hidden fixed inset-y-0 left-0 w-64 h-full z-50 transition-transform duration-300 transform ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"

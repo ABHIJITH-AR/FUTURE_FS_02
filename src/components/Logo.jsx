@@ -9,27 +9,27 @@ export default function Logo({ size = "md", className = "", showSubtitle = true 
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 100, damping: 15 }}
       whileHover="hover"
-      className={`flex select-none ${size === "lg" ? "flex-col items-center text-center gap-2" : "items-center gap-3"} ${className}`} 
+      className={`flex select-none ${size === "lg" ? "flex-col items-center text-center gap-2" : "items-center gap-3"} ${className}`}
       id="smart-crm-logo"
     >
-      <motion.div 
+      <motion.div
         variants={{
-          hover: { 
-            scale: 1.1, 
+          hover: {
+            scale: 1.1,
             rotate: [0, -4, 4, 0],
-            boxShadow: "0 0 25px rgba(6, 182, 212, 0.6)"
-          }
+            boxShadow: "0 0 25px rgba(6, 182, 212, 0.6)",
+          },
         }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 300, 
+        transition={{
+          type: "spring",
+          stiffness: 300,
           damping: 12,
-          rotate: { type: "tween", ease: "easeInOut", duration: 0.4 }
+          rotate: { type: "tween", ease: "easeInOut", duration: 0.4 },
         }}
         className="flex items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 via-blue-500 to-violet-600 shadow-[0_0_15px_rgba(6,182,212,0.35)] relative overflow-hidden"
         style={{
@@ -37,8 +37,7 @@ export default function Logo({ size = "md", className = "", showSubtitle = true 
           height: size === "sm" ? "30px" : size === "md" ? "42px" : "56px",
         }}
       >
-        {/* Shimmer overlay effect */}
-        <motion.div 
+        <motion.div
           animate={{ x: ["-100%", "100%"] }}
           transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
@@ -46,21 +45,21 @@ export default function Logo({ size = "md", className = "", showSubtitle = true 
         <Users className="text-white relative z-10" size={iconSizes[size]} />
       </motion.div>
       <div className={size === "lg" ? "flex flex-col items-center" : ""}>
-        <h1 
+        <h1
           className="font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(6,182,212,0.3)]"
           style={{
             fontSize: size === "sm" ? "1.1rem" : size === "md" ? "1.40rem" : "2.1rem",
-            letterSpacing: "-0.03em"
+            letterSpacing: "-0.03em",
           }}
         >
           Smart CRM
         </h1>
         {showSubtitle && (
-          <p 
+          <p
             className="font-display uppercase tracking-widest text-cyan-400 font-extrabold leading-none mt-1.5 opacity-90"
             style={{
               fontSize: size === "sm" ? "8px" : size === "md" ? "10px" : "13px",
-              letterSpacing: "0.12em"
+              letterSpacing: "0.12em",
             }}
           >
             Client Lead Management

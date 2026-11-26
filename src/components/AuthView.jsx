@@ -16,7 +16,6 @@ export default function AuthView({ onAuthSuccess, setErrorAlert, setSuccessAlert
     e.preventDefault();
     setFormError(null);
 
-    // Dynamic Client Validations
     if (isLogin) {
       if (!email.trim() || !password) {
         setFormError("Please fill out all login fields.");
@@ -83,45 +82,32 @@ export default function AuthView({ onAuthSuccess, setErrorAlert, setSuccessAlert
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#04091a] px-4 py-12 relative overflow-hidden" id="auth-page">
-      {/* Decorative premium animated background blobs */}
-      <motion.div 
+      <motion.div
         animate={{
           x: [0, 60, -30, 0],
           y: [0, -80, 40, 0],
           scale: [1, 1.25, 0.85, 1],
         }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-[100px] pointer-events-none" 
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-[100px] pointer-events-none"
       />
-      <motion.div 
+      <motion.div
         animate={{
           x: [0, -70, 40, 0],
           y: [0, 60, -50, 0],
           scale: [1, 0.8, 1.15, 1],
         }}
-        transition={{
-          duration: 24,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-violet-500/10 blur-[100px] pointer-events-none" 
+        transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-violet-500/10 blur-[100px] pointer-events-none"
       />
-      <motion.div 
+      <motion.div
         animate={{
           x: [0, 40, -40, 0],
           y: [0, 30, -30, 0],
-          opacity: [0.03, 0.08, 0.03]
+          opacity: [0.03, 0.08, 0.03],
         }}
-        transition={{
-          duration: 16,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute top-1/2 left-1/3 -translate-y-1/2 h-80 w-80 rounded-full bg-blue-500/5 blur-[120px] pointer-events-none" 
+        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/2 left-1/3 -translate-y-1/2 h-80 w-80 rounded-full bg-blue-500/5 blur-[120px] pointer-events-none"
       />
 
       <motion.div
@@ -135,7 +121,6 @@ export default function AuthView({ onAuthSuccess, setErrorAlert, setSuccessAlert
         </div>
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.3)] backdrop-blur-md">
-          {/* Tabs */}
           <div className="flex border-b border-slate-800 pb-4 mb-6">
             <button
               onClick={() => {
@@ -173,7 +158,6 @@ export default function AuthView({ onAuthSuccess, setErrorAlert, setSuccessAlert
               : "Create an account to start tracking leads today."}
           </p>
 
-          {/* Error Banner */}
           {formError && (
             <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/25 p-4 text-xs text-red-400 flex flex-col gap-2.5 shadow-sm">
               <div className="flex items-start gap-2">
@@ -195,7 +179,6 @@ export default function AuthView({ onAuthSuccess, setErrorAlert, setSuccessAlert
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div>
@@ -285,7 +268,6 @@ export default function AuthView({ onAuthSuccess, setErrorAlert, setSuccessAlert
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
@@ -308,7 +290,6 @@ export default function AuthView({ onAuthSuccess, setErrorAlert, setSuccessAlert
             </button>
           </form>
 
-          {/* Account Switcher / Helper message */}
           <div className="mt-6 text-center text-sm">
             {isLogin ? (
               <p className="text-slate-400">
@@ -334,7 +315,7 @@ export default function AuthView({ onAuthSuccess, setErrorAlert, setSuccessAlert
                     setIsLogin(true);
                     setFormError(null);
                   }}
-                  className="font-semibold text-violet-400 hover:text-violet-350 transition-colors cursor-pointer inline-block ml-1"
+                  className="font-semibold text-violet-400 hover:text-violet-300 transition-colors cursor-pointer inline-block ml-1"
                   id="link-go-to-login"
                 >
                   Sign in

@@ -10,19 +10,16 @@ export default function SettingsView({
   setSuccessAlert,
   setActiveTab,
 }) {
-  // Profile Info form
   const [fullName, setFullName] = useState(user.fullName);
   const [email, setEmail] = useState(user.email);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [profileError, setProfileError] = useState(null);
 
-  // Sync profile options
   useEffect(() => {
     setFullName(user.fullName);
     setEmail(user.email);
   }, [user]);
 
-  // Password Update form
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -99,7 +96,6 @@ export default function SettingsView({
           <span>Back to Dashboard</span>
         </button>
       )}
-      {/* Header title */}
       <div>
         <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">
           Account Security & Preferences
@@ -110,7 +106,6 @@ export default function SettingsView({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Profile Card */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -180,7 +175,6 @@ export default function SettingsView({
           </form>
         </motion.div>
 
-        {/* Change Password Card */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -194,7 +188,7 @@ export default function SettingsView({
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-100">Update Encryption Key</h3>
-              <p className="text-xs text-slate-505">Alter your dashboard entry password.</p>
+              <p className="text-xs text-slate-500">Alter your dashboard entry password.</p>
             </div>
           </div>
 

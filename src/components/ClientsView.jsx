@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Filter, Plus, Edit2, Trash2, X, AlertCircle, Sparkles, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -8,19 +8,20 @@ const GRADIENTS = [
   "from-pink-500 to-rose-600 text-pink-50",
   "from-amber-500 to-orange-600 text-amber-50",
   "from-emerald-500 to-teal-600 text-emerald-50",
-  "from-violet-500 to-fuchsia-600 text-violet-50"
+  "from-violet-500 to-fuchsia-600 text-violet-50",
 ];
 
 function getAvatarFallback(fullName) {
   const name = fullName || "?";
   const index = Math.abs(name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)) % GRADIENTS.length;
-  const initials = name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase() || "?";
+  const initials =
+    name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || "?";
   return { initials, gradient: GRADIENTS[index] };
 }
 
@@ -38,11 +39,9 @@ export default function ClientsView({
   const [statusFilter, setStatusFilter] = useState("All");
   const [isSeeding, setIsSeeding] = useState(false);
 
-  // Add/Edit Modals Internal Form states
   const [editingClient, setEditingClient] = useState(null);
   const [isDeletingId, setIsDeletingId] = useState(null);
 
-  // Form Inputs
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -54,12 +53,28 @@ export default function ClientsView({
   const [notes, setNotes] = useState("");
   const [photo, setPhoto] = useState("");
 
-  // Errors inside forms
   const [validationError, setValidationError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Open Add modal logic
+  useEffect(() => {
+    if (isAddModalOpen) {
+      setEditingClient(null);
+      setFullName("");
+      setEmail("");
+      setPhone("");
+      setCompanyName("");
+      setStatus("Active");
+      setPriority("Medium");
+      setDealValue("");
+      setLeadSource("Direct Web");
+      setNotes("");
+      setPhoto("");
+      setValidationError(null);
+    }
+  }, [isAddModalOpen]);
+
   const openAddForm = () => {
+    setEditingClient(null);
     setFullName("");
     setEmail("");
     setPhone("");
@@ -74,7 +89,6 @@ export default function ClientsView({
     setIsAddModalOpen(true);
   };
 
-  // Open Edit form logic
   const openEditForm = (client) => {
     setEditingClient(client);
     setFullName(client.fullName);
@@ -106,7 +120,6 @@ export default function ClientsView({
       return;
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       setValidationError("Please enter a valid email format.");
@@ -124,7 +137,7 @@ export default function ClientsView({
       dealValue: dealValue.trim() !== "" ? Number(dealValue) : 0,
       leadSource: leadSource.trim(),
       notes: notes.trim(),
-      photo: photo,
+      photo,
     });
     setIsSubmitting(false);
 
@@ -144,7 +157,6 @@ export default function ClientsView({
       return;
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       setValidationError("Please enter a valid email format.");
@@ -164,7 +176,7 @@ export default function ClientsView({
       dealValue: dealValue.trim() !== "" ? Number(dealValue) : 0,
       leadSource: leadSource.trim(),
       notes: notes.trim(),
-      photo: photo,
+      photo,
     });
     setIsSubmitting(false);
 
@@ -187,14 +199,13 @@ export default function ClientsView({
     }
   };
 
-  // Searching and Filtering algorithm
   const filteredClients = clients.filter((client) => {
     const term = searchTerm.toLowerCase();
     const matchesSearch =
-      client.fullName.toLowerCase().includes(term) ||
-      client.email.toLowerCase().includes(term) ||
-      client.companyName.toLowerCase().includes(term) ||
-      client.phone.includes(searchTerm) ||
+      (client.fullName || "").toLowerCase().includes(term) ||
+      (client.email || "").toLowerCase().includes(term) ||
+      (client.companyName || "").toLowerCase().includes(term) ||
+      (client.phone || "").includes(searchTerm) ||
       (client.priority || "").toLowerCase().includes(term) ||
       (client.leadSource || "").toLowerCase().includes(term) ||
       (client.notes || "").toLowerCase().includes(term);
@@ -225,10 +236,10 @@ export default function ClientsView({
           <span>Back to Dashboard</span>
         </button>
       )}
-      {/* Header and Controls */}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4" id="ledger-header">
         <div>
-          <h2 className="font-display font-extrabold text-2xl md:text-3xl tracking-tight bg-gradient-to-r from-cyan-400 via-purple-400 to-rose-450 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+          <h2 className="font-display font-extrabold text-2xl md:text-3xl tracking-tight bg-gradient-to-r from-cyan-400 via-purple-400 to-rose-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]">
             Client Lead Management
           </h2>
           <p className="text-xs text-slate-400 mt-1 font-medium">
@@ -238,7 +249,7 @@ export default function ClientsView({
         <div className="flex items-center gap-3">
           <button
             onClick={openAddForm}
-            className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-600 hover:to-violet-700 text-white font-semibold text-sm px-4.5 py-2.5 rounded-xl transition-all cursor-pointer shadow-[0_4px_15px_rgba(59,130,246,0.3)] hover:shadow-[0_4px_20px_rgba(139,92,246,0.4)]"
+            className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-600 hover:to-violet-700 text-white font-semibold text-sm px-4.5 py-2.5 rounded-xl transition-all cursor-pointer shadow-[0_4px_15px_rgba(59,130,246,0.3)] hover:shadow-[0_4px_20px_rgba(139,92,246,0.4)] whitespace-nowrap shrink-0"
             id="btn-add-lead-top"
           >
             <Plus size={16} />
@@ -247,12 +258,11 @@ export default function ClientsView({
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
       {clients.length === 0 ? (
         <div className="text-center py-20 px-6 rounded-2xl bg-gradient-to-br from-slate-900/60 to-slate-950/80 border border-slate-800/80 relative overflow-hidden flex flex-col items-center justify-center shadow-lg" id="empty-ledger-box">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(6,182,212,0.06),transparent_50%)] pointer-events-none animate-pulse" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(6,182,212,0.06),transparent_50%)] pointer-events-none" />
           <div className="h-16 w-16 rounded-full bg-gradient-to-br from-cyan-400/10 via-blue-500/10 to-violet-600/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-6 shadow-[0_0_20px_rgba(6,182,212,0.15)] animate-glow-slow">
-            <Sparkles className="h-8 w-8 animate-pulse text-cyan-455" />
+            <Sparkles className="h-8 w-8 text-cyan-400" />
           </div>
           <h3 className="font-display text-xl md:text-2xl font-bold text-white tracking-tight drop-shadow-md">
             Your Lead Ledger is Empty!
@@ -337,7 +347,6 @@ export default function ClientsView({
                       <tr key={client.id} className="hover:bg-slate-950/40 transition-colors group">
                         <td className="px-6 py-4.5">
                           <div className="flex items-center gap-3">
-                            {/* Lead Avatar */}
                             {(() => {
                               const { initials, gradient } = getAvatarFallback(client.fullName);
                               return (
@@ -349,7 +358,7 @@ export default function ClientsView({
 
                             <div>
                               <div className="font-semibold text-white flex items-center gap-2 flex-wrap">
-                                 <span>{client.fullName}</span>
+                                <span>{client.fullName}</span>
                                 <span className={`text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md font-mono ${getSourceBadgeClass(client.leadSource || "Direct Web")}`}>
                                   {client.leadSource || "Direct Web"}
                                 </span>
@@ -377,7 +386,7 @@ export default function ClientsView({
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4.5 font-mono text-cyan-400 font-bold text-sm">
+                        <td className="px-6 py-4.5 font-mono text-cyan-400 font-bold text-sm tabular-nums">
                           ${(client.dealValue || 0).toLocaleString()}
                         </td>
                         <td className="px-6 py-4.5">
@@ -434,8 +443,6 @@ export default function ClientsView({
           </div>
         </>
       )}
-
-      {/* ----------------- POPUP DIALOGS & MODAL COMPLEMENTS ----------------- */}
 
       {/* 1. Add Client Lead Modal */}
       <AnimatePresence>
@@ -559,7 +566,7 @@ export default function ClientsView({
                       Priority Level
                     </label>
                     <div className="flex gap-2">
-                       {["High", "Medium", "Low"].map((pr) => (
+                      {["High", "Medium", "Low"].map((pr) => (
                         <button
                           key={pr}
                           type="button"
@@ -616,7 +623,7 @@ export default function ClientsView({
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Briefly log client requirements, tech stack preferences, timeline boundaries..."
                     rows={2}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:border-blue-500 resize-none animate-fade-in"
+                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:border-blue-500 resize-none"
                   />
                 </div>
 
@@ -764,7 +771,7 @@ export default function ClientsView({
                       Priority Level
                     </label>
                     <div className="flex gap-2">
-                       {["High", "Medium", "Low"].map((pr) => (
+                      {["High", "Medium", "Low"].map((pr) => (
                         <button
                           key={pr}
                           type="button"
@@ -821,7 +828,7 @@ export default function ClientsView({
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Briefly log client requirements, tech stack preferences, timeline boundaries..."
                     rows={2}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:border-blue-500 resize-none animate-fade-in"
+                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:border-blue-500 resize-none"
                   />
                 </div>
 
