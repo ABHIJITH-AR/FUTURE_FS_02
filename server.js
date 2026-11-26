@@ -304,7 +304,7 @@ app.put("/api/auth/profile", authenticateToken, async (req, res) => {
     });
   } catch (err) {
     console.error("Update profile error:", err);
-    res.status(500).json({ error: "Failed to update profile." });
+    res.status(500).json({ error: err?.message || "Failed to update profile." });
   }
 });
 
@@ -335,7 +335,7 @@ app.put("/api/auth/change-password", authenticateToken, async (req, res) => {
     res.json({ message: "Password updated successfully!" });
   } catch (err) {
     console.error("Change password error:", err);
-    res.status(500).json({ error: "Failed to update password." });
+    res.status(500).json({ error: err?.message || "Failed to update password." });
   }
 });
 
@@ -350,7 +350,7 @@ app.get("/api/clients", authenticateToken, async (req, res) => {
     res.json(myClients);
   } catch (err) {
     console.error("Fetch clients error:", err);
-    res.status(500).json({ error: "Failed to load client leads." });
+    res.status(500).json({ error: err?.message || "Failed to load client leads." });
   }
 });
 
@@ -416,7 +416,7 @@ app.post("/api/clients", authenticateToken, async (req, res) => {
     });
   } catch (err) {
     console.error("Add client error:", err);
-    res.status(500).json({ error: "Failed to create client lead." });
+    res.status(500).json({ error: err?.message || "Failed to create client lead." });
   }
 });
 
@@ -518,7 +518,7 @@ app.post("/api/clients/seed", authenticateToken, async (req, res) => {
     });
   } catch (err) {
     console.error("Seed clients error:", err);
-    res.status(500).json({ error: "Failed to seed sample leads." });
+    res.status(500).json({ error: err?.message || "Failed to seed sample leads." });
   }
 });
 
@@ -599,7 +599,7 @@ app.put("/api/clients/:id", authenticateToken, async (req, res) => {
     }
   } catch (err) {
     console.error("Update client error:", err);
-    res.status(500).json({ error: "Failed to update client lead." });
+    res.status(500).json({ error: err?.message || "Failed to update client lead." });
   }
 });
 
@@ -628,7 +628,7 @@ app.delete("/api/clients/:id", authenticateToken, async (req, res) => {
     }
   } catch (err) {
     console.error("Delete client error:", err);
-    res.status(500).json({ error: "Failed to delete client lead." });
+    res.status(500).json({ error: err?.message || "Failed to delete client lead." });
   }
 });
 

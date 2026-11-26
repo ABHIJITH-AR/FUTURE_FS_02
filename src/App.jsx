@@ -122,7 +122,7 @@ export default function App() {
 
   // 1. Add Client Lead
   const handleAddClient = async (clientData) => {
-    if (!token) return false;
+    if (!token) return { ok: false, error: "Please sign in again." };
     try {
       const response = await fetch("/api/clients", {
         method: "POST",
@@ -135,22 +135,30 @@ export default function App() {
 
       const data = await safeParseJson(response);
       if (response.ok) {
-        setClients((prev) => [...prev, data.client]);
+        setClients((prev) => [data.client, ...prev]);
         showToast(`Lead for ${clientData.fullName} acquired successfully!`, "success");
-        return true;
+        return { ok: true };
       } else {
-        showToast(data.error || "Failed to add client lead.", "error");
-        return false;
+        const errMsg = data.error || "Failed to add client lead.";
+        if (response.status === 401) {
+          setToken(null);
+          setUser(null);
+          setClients([]);
+          setIsAddModalOpen(false);
+        }
+        showToast(errMsg, "error");
+        return { ok: false, error: errMsg };
       }
     } catch {
-      showToast("Network failure. Please retry.", "error");
-      return false;
+      const errMsg = "Network failure. Please retry.";
+      showToast(errMsg, "error");
+      return { ok: false, error: errMsg };
     }
   };
 
   // 2. Edit Client Lead
   const handleEditClient = async (clientId, clientData) => {
-    if (!token) return false;
+    if (!token) return { ok: false, error: "Please sign in again." };
     try {
       const response = await fetch(`/api/clients/${clientId}`, {
         method: "PUT",
@@ -167,14 +175,21 @@ export default function App() {
           prev.map((c) => (c.id === clientId ? data.client : c))
         );
         showToast("Prospect ledger record saved successfully.", "success");
-        return true;
+        return { ok: true };
       } else {
-        showToast(data.error || "Failed to save prospect changes.", "error");
-        return false;
+        const errMsg = data.error || "Failed to save prospect changes.";
+        if (response.status === 401) {
+          setToken(null);
+          setUser(null);
+          setClients([]);
+        }
+        showToast(errMsg, "error");
+        return { ok: false, error: errMsg };
       }
     } catch {
-      showToast("Network failure. Please retry.", "error");
-      return false;
+      const errMsg = "Network failure. Please retry.";
+      showToast(errMsg, "error");
+      return { ok: false, error: errMsg };
     }
   };
 
@@ -193,6 +208,11 @@ export default function App() {
         showToast("Client record permanently discarded.", "success");
         return true;
       } else {
+        if (response.status === 401) {
+          setToken(null);
+          setUser(null);
+          setClients([]);
+        }
         showToast(data.error || "Failed to discard prospect lead.", "error");
         return false;
       }
@@ -213,10 +233,15 @@ export default function App() {
 
       const data = await safeParseJson(response);
       if (response.ok) {
-        setClients((prev) => [...prev, ...(data.clients || [])]);
+        setClients((prev) => [...(data.clients || []), ...prev]);
         showToast("Seeded 6 professional sample leads successfully!", "success");
         return true;
       } else {
+        if (response.status === 401) {
+          setToken(null);
+          setUser(null);
+          setClients([]);
+        }
         showToast(data.error || "Failed to seed sample leads.", "error");
         return false;
       }

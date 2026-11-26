@@ -181,6 +181,27 @@ function formatSupabaseError(context, error, fallbackMessage) {
       { cause: error }
     );
   }
+  if (code === "PGRST204" || code === "42703" || /could not find the .* column|column .* does not exist/i.test(msg)) {
+    return new Error(
+      "Database table columns are outdated. Re-run supabase_schema.sql in Supabase SQL Editor.",
+      { cause: error }
+    );
+  }
+  if (code === "23503" || /foreign key constraint/i.test(msg)) {
+    return new Error(
+      "Session user account not found in database. Please sign out and register/sign in again.",
+      { cause: error }
+    );
+  }
+  if (code === "23505" || /duplicate key/i.test(msg)) {
+    return new Error("A duplicate record already exists.", { cause: error });
+  }
+  if (code === "23502" || code === "23514" || /null value in column|check constraint/i.test(msg)) {
+    return new Error(
+      "Invalid or missing lead field rejected by database.",
+      { cause: error }
+    );
+  }
   if (status === 401 || status === 403 || /invalid api key|jwt|unauthorized/i.test(msg)) {
     return new Error(
       "Invalid Supabase API key. Verify SUPABASE_SERVICE_ROLE_KEY in Render Environment Variables.",

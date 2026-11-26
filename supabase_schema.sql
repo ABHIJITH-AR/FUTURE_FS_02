@@ -27,6 +27,13 @@ CREATE TABLE IF NOT EXISTS public.clients (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Ensure columns exist if an older clients table was created previously
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS priority TEXT NOT NULL DEFAULT 'Medium';
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS deal_value NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS lead_source TEXT NOT NULL DEFAULT 'Direct Web';
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS notes TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS photo TEXT NOT NULL DEFAULT '';
+
 -- 3. Sessions Table
 CREATE TABLE IF NOT EXISTS public.sessions (
   token TEXT PRIMARY KEY,
@@ -48,3 +55,6 @@ ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
 -- Ensure service_role has full access to public tables even if auto-grant was unchecked
 GRANT USAGE ON SCHEMA public TO service_role;
 GRANT ALL ON TABLE public.users, public.clients, public.sessions TO service_role;
+
+-- Refresh PostgREST schema cache
+NOTIFY pgrst, 'reload schema';

@@ -127,7 +127,7 @@ export default function ClientsView({
     }
 
     setIsSubmitting(true);
-    const success = await onAddClient({
+    const result = await onAddClient({
       fullName: fullName.trim(),
       email: email.trim(),
       phone: phone.trim(),
@@ -141,10 +141,14 @@ export default function ClientsView({
     });
     setIsSubmitting(false);
 
-    if (success) {
+    const isSuccess = typeof result === "boolean" ? result : Boolean(result?.ok);
+    if (isSuccess) {
       setIsAddModalOpen(false);
     } else {
-      setValidationError("Failed to create client lead. Please try again.");
+      setValidationError(
+        (typeof result === "object" && result?.error) ||
+          "Failed to create client lead. Please try again."
+      );
     }
   };
 
@@ -166,7 +170,7 @@ export default function ClientsView({
     if (!editingClient) return;
 
     setIsSubmitting(true);
-    const success = await onEditClient(editingClient.id, {
+    const result = await onEditClient(editingClient.id, {
       fullName: fullName.trim(),
       email: email.trim(),
       phone: phone.trim(),
@@ -180,10 +184,14 @@ export default function ClientsView({
     });
     setIsSubmitting(false);
 
-    if (success) {
+    const isSuccess = typeof result === "boolean" ? result : Boolean(result?.ok);
+    if (isSuccess) {
       setEditingClient(null);
     } else {
-      setValidationError("Failed to update client lead. Please try again.");
+      setValidationError(
+        (typeof result === "object" && result?.error) ||
+          "Failed to update client lead. Please try again."
+      );
     }
   };
 
